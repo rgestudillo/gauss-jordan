@@ -290,7 +290,7 @@ function App() {
             <div>
               <h1 className="text-3xl font-bold mb-2">Col</h1>
               <select
-                className="select select-bordered max-w-xs text-black text-2xl"
+                className="select select-bordered max-w-xs text-black text-2xl "
                 onChange={handleColumnsChange}
               >
                 <option>2</option>
@@ -359,7 +359,28 @@ function App() {
         </div>
       )}
       {option === "Option 2" && (
-        <div className="flex flex-col space-y-8">
+        <div className="flex flex-col space-y-8 justify-center items-center ">
+          <div className="border border-gray-300 rounded-lg p-4">
+            <p className="text-left">
+              Please Note: When inputting a set of equations, ensure that each
+              equation is fully represented with all variables, even if their
+              coefficients are zero. This means if your equations involve
+              variables x, y, and z, each equation should explicitly include
+              these variables. <br /> <br /> For example, if your equations are:
+              <br /> x + 3y + 7z = 3 <br />
+              2x + 4y = 2<br /> 6x = 3 <br />
+              <br />
+              They should be input as:
+              <br /> x + 3y + 7z = 3 <br />
+              2x + 4y + 0z = 2 (Note the addition of +0z to include the z
+              variable explicitly) <br />
+              6x + 0y + 0z = 3 (Note the addition of +0y and +0z to include the
+              y and z variables explicitly) <br />
+              <br />
+              This format helps in maintaining consistency and ensures accurate
+              interpretation and processing of your equations.
+            </p>
+          </div>
           <textarea
             onChange={handleEquationsChange}
             className="w-[40vh] h-[20vh] textarea textarea-bordered text-black"
