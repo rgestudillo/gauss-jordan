@@ -1,97 +1,27 @@
-import React, { useState, useEffect } from "react";
-import Footer from "../components/Footer";
-import ReactMarkdown from "react-markdown";
+import { useState, useEffect } from "react";
 import "../App.css";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
-// import MathComponent from "../components/MathComponent";
+
 function Home() {
   const [rows, setRows] = useState(2);
   const [columns, setColumns] = useState(2);
-  const [option, setOption] = useState("Option 1");
+
   const [results, setResults] = useState([]);
   const [grid, setGrid] = useState([]);
   const [solutionType, setSolutionType] = useState(false);
   const [solutionProcess, setSolutionProcess] = useState("");
-  const [equations, setEquations] = useState("");
-  const [gridUpdated, setGridUpdated] = useState(false);
 
-  const handleOptionChange = (e) => {
-    setOption(e.target.value);
-    setGrid([]);
-    generateGrid(rows, columns);
-    setSolutionType(null);
-    setSolutionProcess(null);
-  };
+  const [gridUpdated, setGridUpdated] = useState(false);
 
   const handleClear = () => {
     setRows(2); // Reset rows to default value
     setColumns(2); // Reset columns to default value
-    setOption("Option 1"); // Reset option to default value
-    setEquations(""); // Clear equations
     setResults([]); // Clear results
     setGrid([]); // Clear grid
     generateGrid(rows, columns);
     setSolutionType(false); // Reset solution type
     setSolutionProcess(""); // Clear solution process
     setGridUpdated(false); // Reset grid updated flag
-  };
-  const handleEquationsChange = (e) => {
-    setEquations(e.target.value);
-  };
-
-  const convertEquationsToGrid = (equations) => {
-    // Split the equations by newline character to get individual equations
-    const equationLines = equations.split("\n");
-
-    // Initialize an empty grid
-    const newGrid = [];
-
-    // Iterate over each equation
-    equationLines.forEach((equation) => {
-      // Initialize an empty row for the grid
-      const row = [];
-
-      // Initialize coefficient
-      let coefficient = "";
-
-      // Iterate over each character of the equation
-      for (let i = 0; i < equation.length; i++) {
-        console.log("coefficient is: ", coefficient);
-        const char = equation[i];
-        if (char === "x" || char === "y" || char === "z") {
-          if (coefficient == "") {
-            row.push(1);
-          } else if (coefficient == "-") {
-            row.push(-1);
-          } else {
-            row.push(parseFloat(coefficient.trim()));
-          }
-
-          console.log("reset");
-          coefficient = "";
-        }
-        // If character is '=', push the constant term and break the loop
-        else if (char === "=") {
-          const constant = parseInt(equation.substring(i + 1));
-          row.push(constant);
-          break;
-        } else {
-          if (char != "+" && char != " ") {
-            coefficient += char;
-          }
-        }
-      }
-
-      // Push the row to the grid
-      newGrid.push(row);
-    });
-    // Set the grid and update status
-    setGrid(newGrid);
-    setGridUpdated(true);
-  };
-
-  const handleParse = () => {
-    convertEquationsToGrid(equations);
   };
 
   const handleRowsChange = (e) => {
@@ -128,17 +58,6 @@ function Home() {
     generateGrid(rows, columns);
   }, [rows, columns]);
 
-  useEffect(() => {
-    console.log("option is: ", option);
-  }, [option]);
-
-  function printMatrix(grid) {
-    console.log("printing...");
-    for (let i = 0; i < grid.length; i++) {
-      console.log(grid[i]);
-    }
-  }
-
   // Function to convert grid to matrix with float values
   function convertGridToMatrix(grid) {
     const matrix = [];
@@ -146,11 +65,22 @@ function Home() {
     for (let i = 0; i < grid.length; i++) {
       matrix[i] = [];
       for (let j = 0; j < grid[i].length; j++) {
-        matrix[i][j] = parseFloat(grid[i][j]);
+        matrix[i][j] = parseFractionOrFloat(grid[i][j]);
       }
     }
 
     return matrix;
+  }
+
+  function parseFractionOrFloat(value) {
+    if (value.includes("/")) {
+      // Assuming the format is like "1/3" or "10/4"
+      const parts = value.split("/");
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        return parseFloat(parts[0]) / parseFloat(parts[1]);
+      }
+    }
+    return parseFloat(value);
   }
 
   const areAllFieldsFilled = () => {
@@ -169,7 +99,7 @@ function Home() {
     const matrix = convertGridToMatrix(grid);
     const numRows = matrix.length;
     const numCols = matrix[0].length;
-    let finalResultLatex = "";
+
     // Add LaTeX formatting for input matrix
     solutionProcessText += "\\[\\text{Input is: }\\]";
     solutionProcessText += "\\[\\begin{bmatrix}";
@@ -199,35 +129,11 @@ function Home() {
 
       [matrix[col], matrix[pivotRow]] = [matrix[pivotRow], matrix[col]];
 
-      const pivotValue = matrix[col][col];
-      for (let i = 0; i < numCols; i++) {
-        matrix[col][i] /= pivotValue;
-      }
+      if (pivotRow != col) {
+        solutionProcessText += `\\[R_{${col + 1}} \\leftrightarrow R_{${
+          pivotRow + 1
+        }}\\]`;
 
-      // Add LaTeX formatting for row operations
-      solutionProcessText += `\\[R_{${
-        pivotRow + 1
-      }} = \\frac{1}{${pivotValue}} R_{${pivotRow + 1}}\\]`;
-      solutionProcessText += "\\[\\begin{bmatrix}";
-      for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
-          solutionProcessText += matrix[i][j];
-          if (j !== numCols - 1) {
-            solutionProcessText += " & ";
-          }
-        }
-        solutionProcessText += " \\\\ ";
-      }
-      solutionProcessText += "\\end{bmatrix}\\]";
-
-      for (let row = 0; row < numRows; row++) {
-        if (row === col) continue;
-        const factor = matrix[row][col];
-
-        // Add LaTeX formatting for row operations
-        solutionProcessText += `\\[R_{${row + 1}} = R_{${row + 1}} + ${
-          factor * -1
-        }(R_{${pivotRow + 1}})\\]`;
         solutionProcessText += "\\[\\begin{bmatrix}";
         for (let i = 0; i < numRows; i++) {
           for (let j = 0; j < numCols; j++) {
@@ -239,9 +145,56 @@ function Home() {
           solutionProcessText += " \\\\ ";
         }
         solutionProcessText += "\\end{bmatrix}\\]";
+      }
+
+      const pivotValue = matrix[col][col];
+      for (let i = 0; i < numCols; i++) {
+        matrix[col][i] /= pivotValue;
+      }
+
+      if (pivotValue != 1) {
+        solutionProcessText += `\\[R_{${
+          pivotRow + 1
+        }} = \\frac{1}{${pivotValue}} R_{${pivotRow + 1}}\\]`;
+
+        solutionProcessText += "\\[\\begin{bmatrix}";
+        for (let i = 0; i < numRows; i++) {
+          for (let j = 0; j < numCols; j++) {
+            solutionProcessText += matrix[i][j];
+            if (j !== numCols - 1) {
+              solutionProcessText += " & ";
+            }
+          }
+          solutionProcessText += " \\\\ ";
+        }
+        solutionProcessText += "\\end{bmatrix}\\]";
+      }
+
+      for (let row = 0; row < numRows; row++) {
+        if (row === col) continue;
+        const factor = matrix[row][col];
 
         for (let i = col; i < numCols; i++) {
           matrix[row][i] -= factor * matrix[col][i];
+        }
+
+        if (factor != 0) {
+          // Add LaTeX formatting for row operations
+          solutionProcessText += `\\[R_{${row + 1}} = R_{${row + 1}} + (${
+            factor * -1
+          })R_{${pivotRow + 1}}\\]`;
+
+          solutionProcessText += "\\[\\begin{bmatrix}";
+          for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numCols; j++) {
+              solutionProcessText += matrix[i][j];
+              if (j !== numCols - 1) {
+                solutionProcessText += " & ";
+              }
+            }
+            solutionProcessText += " \\\\ ";
+          }
+          solutionProcessText += "\\end{bmatrix}\\]";
         }
       }
     }
@@ -257,7 +210,7 @@ function Home() {
       const variableName = String.fromCharCode(120 + row);
       const equation = matrix[row]
         .slice(0, numCols - 1)
-        .map((value, index) => `${value}x_{${index + 1}}`)
+        .map((value, index) => `${value}${String.fromCharCode(120 + index)}`)
         .join(" + ");
       const constant = matrix[row][numCols - 1];
       solutionProcessText += `\\[${equation} = ${constant}\\]`;
@@ -310,122 +263,92 @@ function Home() {
   }, [gridUpdated]);
   return (
     <div className="flex flex-col space-y-10 text-white justify-center items-center my-8">
-      <select
-        className="fixed right-0 top-0 m-8 select select-primary  max-w-xs text-black"
-        onChange={handleOptionChange}
-      >
-        <option>Option 1</option>
-        <option>Option 2</option>
-      </select>
-      {option === "Option 1" && (
-        <div className="flex flex-col space-y-8 justify-center items-center">
-          <div className="flex space-x-4 text-black items-center">
-            <div>
-              <select
-                className="select select-bordered max-w-xs text-black text-2xl border-4  border-black rounded-none "
-                onChange={handleRowsChange}
-              >
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-              </select>
-            </div>
-            <h1 className="text-lg font-bold">X</h1>
-            <div>
-              <select
-                className="select select-bordered max-w-xs text-black text-2xl border-4 border-black rounded-none"
-                onChange={handleColumnsChange}
-              >
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-              </select>
-            </div>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${columns}, 1fr)`,
-              gap: "32px",
-              color: "black",
-            }}
-          >
-            {grid.map((row, rowIndex) =>
-              row.map((cell, colIndex) => (
-                <div
-                  key={`${rowIndex}-${colIndex}`}
-                  className="flex flex-row justify-center items-center"
-                  style={{
-                    borderRight:
-                      colIndex === columns - 2 ? "5px solid black" : "none", // Add border on the right for the last column
-                    paddingRight: colIndex === columns - 2 ? "50px" : "0", // Add padding to maintain spacing
-                  }}
-                >
-                  <textarea
-                    onKeyPress={(e) => {
-                      const charCode = e.charCode;
-                      // Check if the entered character is a letter (A-Z or a-z)
-                      if (
-                        (charCode >= 65 && charCode <= 90) ||
-                        (charCode >= 97 && charCode <= 122)
-                      ) {
-                        e.preventDefault(); // Prevent entering letters
-                      }
-                    }}
-                    className="textarea textarea-bordered text-2xl text-center border-4 border-black rounded-none"
-                    placeholder={
-                      colIndex === columns - 1
-                        ? "D"
-                        : `${String.fromCharCode(
-                            65 + colIndex
-                          )}${String.fromCharCode(120 + colIndex)} `
-                    }
-                    value={cell}
-                    onChange={(e) =>
-                      handleTextareaChange(e, rowIndex, colIndex)
-                    }
-                  />
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="flex space-x-4">
-            <button onClick={handleClear} className="btn bg-black text-white">
-              Clear
-            </button>
-            <button
-              className={`btn ${
-                areAllFieldsFilled()
-                  ? "btn bg-black text-white"
-                  : "bg-gray-300 px-4 py-2 rounded-md cursor-not-allowed opacity-50"
-              }`}
-              onClick={areAllFieldsFilled() ? solve : undefined}
+      <div className="flex flex-col space-y-8 justify-center items-center">
+        <div className="flex space-x-4 text-black items-center">
+          <div>
+            <select
+              className="select select-bordered max-w-xs text-black text-2xl border-4  border-black rounded-none "
+              onChange={handleRowsChange}
             >
-              Solve
-            </button>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+          <h1 className="text-lg font-bold">X</h1>
+          <div>
+            <select
+              className="select select-bordered max-w-xs text-black text-2xl border-4 border-black rounded-none"
+              onChange={handleColumnsChange}
+            >
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
           </div>
         </div>
-      )}
-      {option === "Option 2" && (
-        <div className="flex flex-col space-y-8 justify-center items-center ">
-          <textarea
-            onChange={handleEquationsChange}
-            className="w-[40vh] h-[20vh] textarea textarea-bordered text-black"
-            placeholder="x + 2y + 3z = 4
-5x + 6y + 7z = 8
-9x + 4y + 2z = 3"
-          ></textarea>
-          <div className="flex space-x-4">
-            <button onClick={handleParse} className="btn bg-black text-white">
-              Clear
-            </button>
-            <button onClick={handleParse} className="btn bg-black text-white">
-              Solve
-            </button>
-          </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            gap: "32px",
+            color: "black",
+          }}
+        >
+          {grid.map((row, rowIndex) =>
+            row.map((cell, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className="flex flex-row justify-center items-center"
+                style={{
+                  borderRight:
+                    colIndex === columns - 2 ? "5px solid black" : "none", // Add border on the right for the last column
+                  paddingRight: colIndex === columns - 2 ? "50px" : "0", // Add padding to maintain spacing
+                }}
+              >
+                <textarea
+                  onKeyPress={(e) => {
+                    const charCode = e.charCode;
+                    // Check if the entered character is a letter (A-Z or a-z)
+                    if (
+                      (charCode >= 65 && charCode <= 90) ||
+                      (charCode >= 97 && charCode <= 122)
+                    ) {
+                      e.preventDefault(); // Prevent entering letters
+                    }
+                  }}
+                  className="textarea textarea-bordered text-2xl text-center border-4 border-black rounded-none"
+                  placeholder={
+                    colIndex === columns - 1
+                      ? "D"
+                      : `${String.fromCharCode(
+                          65 + colIndex
+                        )}${String.fromCharCode(120 + colIndex)} `
+                  }
+                  value={cell}
+                  onChange={(e) => handleTextareaChange(e, rowIndex, colIndex)}
+                />
+              </div>
+            ))
+          )}
         </div>
-      )}
+
+        <div className="flex space-x-4">
+          <button onClick={handleClear} className="btn bg-black text-white">
+            Clear
+          </button>
+          <button
+            className={`btn ${
+              areAllFieldsFilled()
+                ? "btn bg-black text-white"
+                : "bg-gray-300 px-4 py-2 rounded-md cursor-not-allowed opacity-50"
+            }`}
+            onClick={areAllFieldsFilled() ? solve : undefined}
+          >
+            Solve
+          </button>
+        </div>
+      </div>
+
       {solutionType && (
         <div className="collapse bg-white border-4  border-black">
           <input type="checkbox" />

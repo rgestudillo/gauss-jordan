@@ -1,17 +1,13 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
+import logo from "../assets/logo.png";
 function Footer() {
   const location = useLocation();
 
   return (
     <div className="mt-16">
-      <div className="flex flex-row items-end gap-2 items-end justify-center">
-        <h1 className="text-5xl font-bold text-black ">
+      <div className="flex flex-row items-end gap-2 justify-center">
+        <img height="50" width="50" src={logo} alt="Logo" />
+        <h1 className="text-5xl font-bold text-black">
           System of Linear Equations Calculator
         </h1>
         <p className="text-red-500 font-bold">by kmjs</p>
