@@ -267,7 +267,7 @@ function Home() {
         <div className="flex space-x-4 text-black items-center">
           <div>
             <select
-              className="select select-bordered max-w-xs text-black text-2xl border-4  border-black rounded-none "
+              className="select select-bordered max-w-xs text-black text-2xl border-4  bg-white border-black rounded-none "
               onChange={handleRowsChange}
             >
               <option>2</option>
@@ -277,7 +277,7 @@ function Home() {
           <h1 className="text-lg font-bold">X</h1>
           <div>
             <select
-              className="select select-bordered max-w-xs text-black text-2xl border-4 border-black rounded-none"
+              className="select select-bordered max-w-xs text-black text-2xl border-4 bg-white border-black rounded-none"
               onChange={handleColumnsChange}
             >
               <option>2</option>
@@ -316,7 +316,7 @@ function Home() {
                       e.preventDefault(); // Prevent entering letters
                     }
                   }}
-                  className="textarea textarea-bordered text-2xl text-center border-4 border-black rounded-none"
+                  className="textarea textarea-bordered text-2xl text-center border-4 border-black bg-white text-black rounded-none"
                   placeholder={
                     colIndex === columns - 1
                       ? "D"

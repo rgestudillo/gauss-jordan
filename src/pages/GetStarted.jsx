@@ -1,42 +1,8 @@
 // GetStarted.js
 
-import React from "react";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
 function GetStarted() {
-  const content = `
-  Accessing Matrix Interface: Upon landing on our website, you'll find the matrix option readily available.\\\\
-  
-  Inputting Equations: In the provided text box, input your equations. Ensure that each equation is
-  fully represented with all variables, even if their coefficients are zero.
-  
-  \\textbf{Example:} Consider the system
-  \\[
-  \\begin{align*}
-  2x + 3y - z &= 5 \\\\
-  3x + 2y + z &= 10 \\\\
-  x - 5y + 3z &= 0
-  \\end{align*}
-  \\]
-  To solve this system using the ‘Matrix’ option, make a matrix with 3 rows and 4 columns. Then enter the coefficients accordingly and click solve. By applying the Gauss-Jordan elimination algorithm, the calculator will convert this augmented matrix into its RREF, from which the solution can be read directly.
-  
-  \\textbf{Accessing Equations Interface:} Hover over the 'Matrix' button, and the 'Equations' option will appear. Click on it to access the Equations interface.
-  
-  \\textbf{Inputting Equations:} In the provided text box, input your equations. Ensure that each equation is fully represented with all variables, even if their coefficients are zero.
-  
-  \\textbf{Formatting:} Maintain consistency by including all variables explicitly in each equation, even with zero coefficients. Example:
-  \\[
-  \\begin{align*}
-  2x + 3y - z &= 5 \\\\
-  3x + 2y + z &= 10 \\\\
-  x - 5y + 3z &= 0
-  \\end{align*}
-  \\]
-  This ensures accurate interpretation and processing of your equations.
-  
-  \\textbf{Calculation and Result:} Click the "Solve" button to initiate the calculation process. Our calculator will employ the Gauss-Jordan method to transform or reduce the matrix. The resulting matrix will be displayed automatically, providing you with the solution to your system of linear equations.
-  `;
-
   return (
     <div className="flex flex-col">
       <p className="mt-4 text-justify">
