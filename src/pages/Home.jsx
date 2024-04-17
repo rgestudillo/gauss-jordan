@@ -4,7 +4,7 @@ import { MathJax, MathJaxContext } from "better-react-mathjax";
 
 function Home() {
   const [rows, setRows] = useState(2);
-  const [columns, setColumns] = useState(2);
+  const [columns, setColumns] = useState(3);
 
   const [results, setResults] = useState([]);
   const [grid, setGrid] = useState([]);
@@ -15,7 +15,7 @@ function Home() {
 
   const handleClear = () => {
     setRows(2); // Reset rows to default value
-    setColumns(2); // Reset columns to default value
+    setColumns(3); // Reset columns to default value
     setResults([]); // Clear results
     setGrid([]); // Clear grid
     generateGrid(rows, columns);
@@ -280,7 +280,6 @@ function Home() {
               className="select select-bordered max-w-xs text-black text-2xl border-4 bg-white border-black rounded-none"
               onChange={handleColumnsChange}
             >
-              <option>2</option>
               <option>3</option>
               <option>4</option>
             </select>
